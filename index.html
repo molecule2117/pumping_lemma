@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pumping Lemma - Interactive Demonstration Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Bitter:wght@400;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>Pumping Lemma</h1>
+  <p class="subtitle">Interactive Demonstration Tool for Regular Languages</p>
+</header>
+
+<div class="info-box">
+  <h3>The Pumping Lemma for Regular Languages</h3>
+  <p>If L is regular, ∃ pumping length p such that ∀ s ∈ L with |s| ≥ p, s = xyz where:<br>
+  &nbsp;&nbsp;① |xy| ≤ p &nbsp;&nbsp; ② |y| ≥ 1 &nbsp;&nbsp; ③ ∀ i ≥ 0 : xyⁱz ∈ L<br><br>
+  <strong>To prove NOT regular:</strong> Find a string where no valid xyz decomposition satisfies ③.</p>
+</div>
+
+<div class="main-grid">
+<div>
+  <div class="card" style="animation-delay:.1s">
+    <div class="card-header"><h2 class="card-title">1. Select or Define Language</h2></div>
+
+    <!-- Dropdown -->
+    <div class="dropdown-wrap">
+      <label>Language</label>
+      <button class="dd-trigger" id="ddTrigger" onclick="toggleDd()">
+        <span class="dd-label"><span class="dd-placeholder" id="ddLabel">— choose a language —</span></span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-menu" id="ddMenu">
+        <div class="dd-search"><input type="text" id="ddSearch" placeholder="Search languages…" oninput="filterDd()" onclick="event.stopPropagation()"></div>
+        <div id="ddItems"></div>
+      </div>
+    </div>
+
+    <!-- Selected language info -->
+    <div class="lang-info-card" id="langInfoCard">
+      <div class="lang-info-top">
+        <span class="lang-info-name" id="liName"></span>
+        <span class="di-badge" id="liBadge"></span>
+      </div>
+      <div class="lang-info-formula" id="liFormula"></div>
+      <div class="lang-info-hint" id="liHint"></div>
+    </div>
+
+    <!-- Custom language -->
+    <div class="form-group" id="customRow">
+      <label>Or type a custom expression</label>
+      <div class="custom-lang-row">
+        <input type="text" id="customLang" placeholder="e.g., { aⁿbⁿcⁿ | n ≥ 0 }" oninput="handleCustom()">
+        <button class="btn btn-sec btn-sm" onclick="clearCustom()">Clear</button>
+      </div>
+      <div class="kb" style="margin-top:.6rem">
+        <div class="kb-lbl">Symbols</div>
+        <div class="kb-row">
+          <button class="key" onclick="lki('a')">a</button>
+          <button class="key" onclick="lki('b')">b</button>
+          <button class="key" onclick="lki('c')">c</button>
+          <button class="key" onclick="lki('n')">n</button>
+          <button class="key" onclick="lki('m')">m</button>
+          <button class="key" onclick="lki('w')">w</button>
+          <button class="key" onclick="lki('ⁿ')">ⁿ</button>
+          <button class="key" onclick="lki('ᵐ')">ᵐ</button>
+          <button class="key" onclick="lki('²')">²</button>
+          <button class="key" onclick="lki('*')">*</button>
+          <button class="key" onclick="lki('ᴿ')">ᴿ</button>
+          <button class="key" onclick="lki('{ ')">{ </button>
+          <button class="key" onclick="lki(' }')"> }</button>
+          <button class="key" onclick="lki(' | ')">&nbsp;|</button>
+          <button class="key" onclick="lki(' ≥ ')">≥</button>
+          <button class="key" onclick="lki('∈')">∈</button>
+          <button class="key" onclick="lki('ε')">ε</button>
+          <button class="key kdel" onclick="lkd()">⌫</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="langStatus" class="lang-status"></div>
+  </div>
+
+  <div class="card" style="animation-delay:.2s;margin-top:0">
+    <div class="card-header"><h2 class="card-title">2. Input Test String</h2></div>
+    <div class="form-group">
+      <label>Test String</label>
+      <div class="str-input-wrap">
+        <input type="text" id="inputStr" placeholder="e.g., aaabbb" oninput="onStrInput()">
+        <span class="mem-indicator" id="memIndicator"></span>
+      </div>
+      <div class="mem-banner" id="memBanner"></div>
+      <div class="mem-manual" id="memManual">
+        <div class="mem-manual-q" id="memManualQ"></div>
+        <div class="mem-btns">
+          <button class="btn-yes" onclick="setManualMem(true)">✓ Yes</button>
+          <button class="btn-no" onclick="setManualMem(false)">✗ No</button>
+        </div>
+      </div>
+    </div>
+    <div class="kb">
+      <div class="kb-lbl">String Input</div>
+      <div class="kb-row">
+        <button class="key" onclick="ski('a')">a</button>
+        <button class="key" onclick="ski('b')">b</button>
+        <button class="key" onclick="ski('c')">c</button>
+        <button class="key" onclick="ski('d')">d</button>
+        <button class="key" onclick="ski('0')">0</button>
+        <button class="key" onclick="ski('1')">1</button>
+        <button class="key" onclick="ski('ε')">ε</button>
+        <button class="key kdel" onclick="skd()">⌫</button>
+        <button class="key kdel" onclick="skc()" style="font-size:10px;padding:5px 6px">CLR</button>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:1rem">
+      <label>Pumping Length (p)</label>
+      <input type="number" id="pLen" value="3" min="1" max="20" oninput="onStrInput()">
+    </div>
+    <button class="btn" id="analyzeBtn" onclick="analyze()" style="width:100%;margin-top:.25rem" disabled>Analyze String</button>
+  </div>
+</div>
+
+<div>
+  <div class="card" style="animation-delay:.3s">
+    <div class="card-header"><h2 class="card-title">3. String Decomposition</h2></div>
+    <div id="strViz" class="str-viz"><span style="color:var(--text-secondary);font-size:.9rem">Enter a string to begin</span></div>
+    <div class="stats-grid" id="statsG" style="display:none">
+      <div class="stat-card"><div class="stat-val" id="xd">0</div><div class="stat-lbl">|x|</div></div>
+      <div class="stat-card"><div class="stat-val" id="yd">0</div><div class="stat-lbl">|y|</div></div>
+      <div class="stat-card"><div class="stat-val" id="zd">0</div><div class="stat-lbl">|z|</div></div>
+    </div>
+    <div id="condRow" class="cond-row" style="display:none"></div>
+    <div class="dec-ctrl" id="decCtrl" style="display:none">
+      <div class="dec-inp"><label style="color:var(--x-color)">|x| length</label><input type="number" id="xEnd" min="0" value="0" onchange="updateDec()"></div>
+      <div class="dec-inp"><label style="color:var(--y-color)">|y| length</label><input type="number" id="yLen" min="1" value="1" onchange="updateDec()"></div>
+      <div class="dec-inp"><label style="color:var(--z-color)">|z| (auto)</label><input type="text" id="zDisp" disabled></div>
+    </div>
+    <button class="btn btn-sec" onclick="showAllDecs()" style="width:100%;margin-top:.5rem" id="allDecBtn" disabled>Show All Valid Decompositions</button>
+  </div>
+
+  <div class="card" style="animation-delay:.4s">
+    <div class="card-header"><h2 class="card-title">4. Pump the String</h2></div>
+    <div class="pump-ctrl">
+      <label>Pumping Value (i)</label>
+      <div class="slider-row">
+        <input type="range" id="iSlider" class="slider" min="0" max="6" value="1" oninput="updatePump()">
+        <div class="i-disp" id="iDisp">1</div>
+      </div>
+      <div id="resultBox" class="result-box" style="display:none">
+        <div class="result-hdr">Pumped String: xy<sup id="iPow">1</sup>z</div>
+        <div class="result-str" id="pumpedStr"></div>
+        <div class="pump-mem-check" id="pumpMemCheck">
+          <div style="flex:1;min-width:140px">Does this pumped string belong to the language?</div>
+          <div class="mem-btns">
+            <button class="btn-yes" onclick="handlePumpMem(true)">✓ Yes</button>
+            <button class="btn-no" onclick="handlePumpMem(false)">✗ No</button>
+          </div>
+        </div>
+        <div style="margin-top:.75rem"><span class="badge" id="memBadge">—</span></div>
+        <div class="contra-note" id="contraN"></div>
+      </div>
+    </div>
+    <div class="proof-box" id="proofBox">
+      <span class="ph">Proof Summary</span>
+      <div id="proofTxt"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="decModal" class="modal">
+  <div class="modal-inner">
+    <div class="modal-hdr">All Valid Decompositions</div>
+    <p style="color:var(--text-secondary);font-family:'JetBrains Mono',monospace;font-size:.78rem;margin-bottom:.75rem">All s = xyz where |xy| ≤ p and |y| ≥ 1</p>
+    <div id="decTable"></div>
+    <div style="margin-top:1rem"><button class="btn btn-sec" onclick="closeMod()">Close</button></div>
+  </div>
+</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
